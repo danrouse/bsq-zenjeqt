@@ -1,0 +1,29 @@
+{
+  "id": "zenjeqt",
+  "name": "Zenjeqt",
+  "version": "0.1.0",
+  "author": "danrouse#0214",
+  "description": [
+    "Zenject for Quest"
+  ],
+  "category": "Gameplay",
+  "gameVersion": "1.13.2",
+  "platform": "Quest",
+  "components": [
+    {
+      "type": "HookMod",
+      "installAction": {
+        "installLibraryFile": "libzenjeqt.so"
+      },
+      "uninstallAction": {
+        "removeLibraryFile": "libzenjeqt.so"
+      }
+    },
+    {
+      "type": "HookModLibrary",
+      "installAction": {
+        "installLibraryFile": "libbeatsaber-hook_1_0_10.so"
+      }
+    }
+  ]
+}
