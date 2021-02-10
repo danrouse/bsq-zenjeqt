@@ -1,14 +1,13 @@
 #pragma once
 
-#ifdef ZENJEQT_DEBUG
 #include "TestInstaller.hpp"
 #include "TestMonoInstaller.hpp"
 #include "TestBehaviour.hpp"
 #include "TestClass.hpp"
 #include "custom-types/shared/register.hpp"
 
-namespace ZenjeqtTest {
-    inline void DoTheThing() {
+namespace Zenjeqt {
+    inline void Test() {
         custom_types::Register::RegisterTypes<
             Zenjeqt::TestBehaviour,
             Zenjeqt::TestClass,
@@ -20,8 +19,3 @@ namespace ZenjeqtTest {
         zenjeqtor->OnMenu<Zenjeqt::TestMonoInstaller*>();
     }
 }
-#else
-namespace ZenjeqtTest {
-    inline void DoTheThing() {}
-}
-#endif
