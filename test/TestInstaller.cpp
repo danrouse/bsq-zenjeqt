@@ -1,13 +1,11 @@
+#include "logger.hpp"
 #include "TestInstaller.hpp"
 #include "TestClass.hpp"
-#include "logger.hpp"
 
 DEFINE_CLASS(Zenjeqt::TestInstaller);
 
+// Constructor MUST be explicitly defined on basic Installer types
 void Zenjeqt::TestInstaller::ctor() {}
-
-// This should never get called (must be stubbed because of vtables of abstract class tree)
-void Zenjeqt::TestInstaller::__Unused_InstallBindings() {}
 
 void Zenjeqt::TestInstaller::InstallBindings() {
     LOG_CALLER;

@@ -2,6 +2,9 @@
 #include "logger.hpp"
 #include "hooks.hpp"
 #include "Zenjeqtor.hpp"
+#include "Installer.hpp"
+#include "MonoInstaller.hpp"
+#include "custom-types/shared/register.hpp"
 #ifdef ZENJEQT_DEBUG
 #include "test.hpp"
 #endif
@@ -15,7 +18,9 @@ extern "C" void setup(ModInfo& info) {}
 
 extern "C" void load() {
     il2cpp_functions::Init();
+    custom_types::Register::RegisterTypes<Zenjeqt::Installer, Zenjeqt::MonoInstaller>();
     Zenjeqt::InstallHooks();
+
     #ifdef ZENJEQT_DEBUG
     Zenjeqt::Test();
     #endif

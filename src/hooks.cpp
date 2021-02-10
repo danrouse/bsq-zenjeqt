@@ -1,30 +1,29 @@
 #include "hooks.hpp"
 
+::Array<System::Attribute*>* InsertCustomAttribute(::Array<System::Attribute*>* arr, System::Attribute* attribute) {
+    auto newArray = ::Array<System::Attribute*>::NewLength(arr->Length() + 1);
+    il2cpp_utils::RunMethodUnsafe(arr, "System.Collections.Generic.ICollection`1.CopyTo", newArray, 0);
+    newArray->values[arr->Length()] = reinterpret_cast<System::Attribute*>(attribute);
+    LOG_DEBUG("Inject attribute from %lp", attribute);
+    return newArray;
+}
+
 /**
  * @brief System.Attribute.GetCustomAttributes hook (overload 1 of 2).
  * Override attribute checks in order to search C++ metadata for custom types.
  * This works around the current inability to define actual C# attributes.
+ * This hook handles fields.
  */
 MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Member, ::Array<System::Attribute*>*, System::Reflection::MemberInfo* element, System::Type* type, bool inherit) {
     auto baseValue = Attribute_GetCustomAttributes_Member(element, type, inherit);
 
-    // // Only override checks for InjectAttributeBase
-    // static auto InjectAttributeBaseClass = il2cpp_utils::GetSystemType("Zenject", "InjectAttributeBase");
-    LOG_DEBUG("Lookup customattribute " + to_utf8(csstrtostr(type->get_FullName())));
-
     auto declaringType = CRASH_UNLESS(il2cpp_utils::RunMethod<System::Type*>(element, "get_DeclaringType"));
     auto declaringClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(declaringType));
-    // auto _namespace = il2cpp_functions::class_get_namespace(declaringClass);
-    // if (_namespace) return baseValue; // Abort quickly from GlobalNamespace checks
-    // auto _class = il2cpp_functions::class_get_name(declaringClass);
     auto memberName = to_utf8(csstrtostr(CRASH_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>(element, "get_Name"))));
-    // LOG_DEBUG("Lookup " + std::string(_namespace) + "/" + std::string(_class) + "/" + member + " (%d)", element->get_MemberType());
+    // LOG_DEBUG("Lookup " + std::string(declaringClass->namespaze) + "/" + std::string(declaringClass->name) + "/" + memberName + " (%d)", element->get_MemberType());
     if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
         LOG_DEBUG("push to base array for member " + memberName);
-        auto newArray = ::Array<System::Attribute*>::NewLength(baseValue->Length() + 1);
-        il2cpp_utils::RunMethodUnsafe(baseValue, "System.Collections.Generic.ICollection`1.CopyTo", newArray, 0);
-        newArray->values[baseValue->Length()] = reinterpret_cast<System::Attribute*>(Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}]);
-        baseValue = newArray;
+        baseValue = InsertCustomAttribute(baseValue, Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}]);
     }
     return baseValue;
 }
@@ -33,6 +32,7 @@ MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Member, ::Array<System::Attri
  * @brief System.Attribute.GetCustomAttributes hook (overload 2 of 2).
  * Override attribute checks in order to search C++ metadata for custom types.
  * This works around the current inability to define actual C# attributes.
+ * This hook handles properties.
  */
 // TODO: Parameter injection NYI, and _may_ not ever be.
 // It is be possible but would either end up working very badly,
@@ -40,6 +40,30 @@ MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Member, ::Array<System::Attri
 // MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Parameter, ::Array<System::Attribute*>*, System::Reflection::ParameterInfo* element, System::Type* type, bool inherit) {
 //     return Attribute_GetCustomAttributes_Parameter(element, type, inherit);
 // }
+
+/**
+ * @brief MonoMethod.GetCustomAttributes hook.
+ * Override attribute checks in order to search C++ metadata for custom types.
+ * This works around the current inability to define actual C# attributes.
+ * This hook handles methods.
+ */
+MAKE_HOOK_OFFSETLESS(MonoMethod_GetCustomAttributes, ::Array<::Il2CppObject*>*, System::Reflection::MonoMethod* self, System::Type* attributeType, bool inherit) {
+    auto baseValue = MonoMethod_GetCustomAttributes(self, attributeType, inherit);
+    static auto InjectAttributeBaseClass = il2cpp_utils::GetClassFromName("Zenject", "InjectAttributeBase");
+    auto attributeClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(attributeType));
+    if (attributeClass != InjectAttributeBaseClass) return baseValue;
+
+    auto declaringClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(self->get_DeclaringType()));
+    auto memberName = to_utf8(csstrtostr(self->get_Name()));
+    if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
+        LOG_DEBUG("Insert attribute for " + declaringClass->namespaze + "::" + declaringClass->name + "::" + memberName);
+        baseValue = reinterpret_cast<::Array<Il2CppObject*>*>(
+            InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}])
+        );
+    }
+
+    return baseValue;
+}
 
 /**
  * @brief Zenject.Context.InstallInstallers hook.
@@ -247,7 +271,18 @@ MAKE_HOOK_OFFSETLESS(ZenjectException_2, void, Zenject::ZenjectException* self, 
     ZenjectException_2(self, message, innerException);
 }
 
+MAKE_HOOK_OFFSETLESS(Zenject_GetFieldInfos, Il2CppObject*, System::Type* parentType) {
+    LOG_DEBUG(to_utf8(csstrtostr(parentType->get_FullName())));
+    return Zenject_GetFieldInfos(parentType);
+}
+MAKE_HOOK_OFFSETLESS(Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember, Il2CppObject*, System::Type* parentType, System::Reflection::MemberInfo* memInfo) {
+    LOG_DEBUG(to_utf8(csstrtostr(parentType->get_FullName())));
+    return Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember(parentType, memInfo);
+}
 void Zenjeqt::InstallHooks() {
+    INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_GetFieldInfos, il2cpp_utils::FindMethodUnsafe("Zenject.Internal", "ReflectionTypeAnalyzer", "GetFieldInfos", 1));
+    INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember, il2cpp_utils::FindMethodUnsafe("Zenject.Internal", "ReflectionTypeAnalyzer", "GetInjectableInfoForMember", 2));
+
     INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_InstallInstallers, il2cpp_utils::FindMethodUnsafe("Zenject", "Context", "InstallInstallers", 5));
     // INSTALL_HOOK_OFFSETLESS(getLogger(), Attribute_GetCustomAttributes_Parameter, il2cpp_utils::FindMethod("System", "Attribute", "GetCustomAttributes",
     //     std::vector<Il2CppClass*>{},
@@ -265,6 +300,7 @@ void Zenjeqt::InstallHooks() {
             il2cpp_functions::class_get_type(il2cpp_functions::defaults->boolean_class)
         }
     ));
+    INSTALL_HOOK_OFFSETLESS(getLogger(), MonoMethod_GetCustomAttributes, il2cpp_utils::FindMethodUnsafe("System.Reflection", "MonoMethod", "GetCustomAttributes", 2));
     INSTALL_HOOK_OFFSETLESS(getLogger(), GameScenesManager_PushScenes, il2cpp_utils::FindMethodUnsafe("", "GameScenesManager", "PushScenes", 4));
     INSTALL_HOOK_OFFSETLESS(getLogger(), ZenjectException_1, il2cpp_utils::FindMethodUnsafe("Zenject", "ZenjectException", ".ctor", 1));
     INSTALL_HOOK_OFFSETLESS(getLogger(), ZenjectException_2, il2cpp_utils::FindMethodUnsafe("Zenject", "ZenjectException", ".ctor", 2));

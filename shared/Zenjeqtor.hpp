@@ -18,6 +18,12 @@
 #define REGISTER_FIELD_INJECT_OPTIONAL(name, ...) \
     REGISTER_FIELD(name); \
     Zenjeqt::Zenjeqtor::RegisterInject(klass, #name, true, ##__VA_ARGS__);
+#define REGISTER_METHOD_INJECT(name, ...) \
+    REGISTER_METHOD(name); \
+    Zenjeqt::Zenjeqtor::RegisterInject(klass, #name, ##__VA_ARGS__);
+#define REGISTER_METHOD_INJECT_OPTIONAL(name, ...) \
+    REGISTER_METHOD(name); \
+    Zenjeqt::Zenjeqtor::RegisterInject(klass, #name, true, ##__VA_ARGS__);
 
 // Generic hashing function to allow keying by {Il2CppClass*, std::string}
 struct ZenjectInjectMembersHash {
@@ -43,8 +49,8 @@ namespace Zenjeqt {
         static ZenjectInjectMembers InjectMembers;
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional, std::string id) {
             auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*>());
-            attribute->Optional = optional;
-            if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
+            // attribute->Optional = optional;
+            // if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
             InjectMembers[{klass, memberName}] = reinterpret_cast<System::Attribute*>(attribute);
         }
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional) {
