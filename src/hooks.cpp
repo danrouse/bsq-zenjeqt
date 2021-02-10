@@ -4,7 +4,6 @@
     auto newArray = ::Array<System::Attribute*>::NewLength(arr->Length() + 1);
     il2cpp_utils::RunMethodUnsafe(arr, "System.Collections.Generic.ICollection`1.CopyTo", newArray, 0);
     newArray->values[arr->Length()] = reinterpret_cast<System::Attribute*>(attribute);
-    LOG_DEBUG("Inject attribute from %lp", attribute);
     return newArray;
 }
 
@@ -20,10 +19,8 @@ MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Member, ::Array<System::Attri
     auto declaringType = CRASH_UNLESS(il2cpp_utils::RunMethod<System::Type*>(element, "get_DeclaringType"));
     auto declaringClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(declaringType));
     auto memberName = to_utf8(csstrtostr(CRASH_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>(element, "get_Name"))));
-    // LOG_DEBUG("Lookup " + std::string(declaringClass->namespaze) + "/" + std::string(declaringClass->name) + "/" + memberName + " (%d)", element->get_MemberType());
     if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
-        LOG_DEBUG("push to base array for member " + memberName);
-        baseValue = InsertCustomAttribute(baseValue, Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}]);
+        baseValue = InsertCustomAttribute(baseValue, Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}].getAttribute());
     }
     return baseValue;
 }
@@ -56,12 +53,10 @@ MAKE_HOOK_OFFSETLESS(MonoMethod_GetCustomAttributes, ::Array<::Il2CppObject*>*, 
     auto declaringClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(self->get_DeclaringType()));
     auto memberName = to_utf8(csstrtostr(self->get_Name()));
     if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
-        LOG_DEBUG("Insert attribute for " + declaringClass->namespaze + "::" + declaringClass->name + "::" + memberName);
         baseValue = reinterpret_cast<::Array<Il2CppObject*>*>(
-            InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}])
+            InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}].getAttribute())
         );
     }
-
     return baseValue;
 }
 
@@ -271,18 +266,7 @@ MAKE_HOOK_OFFSETLESS(ZenjectException_2, void, Zenject::ZenjectException* self, 
     ZenjectException_2(self, message, innerException);
 }
 
-MAKE_HOOK_OFFSETLESS(Zenject_GetFieldInfos, Il2CppObject*, System::Type* parentType) {
-    LOG_DEBUG(to_utf8(csstrtostr(parentType->get_FullName())));
-    return Zenject_GetFieldInfos(parentType);
-}
-MAKE_HOOK_OFFSETLESS(Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember, Il2CppObject*, System::Type* parentType, System::Reflection::MemberInfo* memInfo) {
-    LOG_DEBUG(to_utf8(csstrtostr(parentType->get_FullName())));
-    return Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember(parentType, memInfo);
-}
 void Zenjeqt::InstallHooks() {
-    INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_GetFieldInfos, il2cpp_utils::FindMethodUnsafe("Zenject.Internal", "ReflectionTypeAnalyzer", "GetFieldInfos", 1));
-    INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_ReflectionTypeAnalyzer_GetInjectableInfoForMember, il2cpp_utils::FindMethodUnsafe("Zenject.Internal", "ReflectionTypeAnalyzer", "GetInjectableInfoForMember", 2));
-
     INSTALL_HOOK_OFFSETLESS(getLogger(), Zenject_InstallInstallers, il2cpp_utils::FindMethodUnsafe("Zenject", "Context", "InstallInstallers", 5));
     // INSTALL_HOOK_OFFSETLESS(getLogger(), Attribute_GetCustomAttributes_Parameter, il2cpp_utils::FindMethod("System", "Attribute", "GetCustomAttributes",
     //     std::vector<Il2CppClass*>{},

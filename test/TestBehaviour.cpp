@@ -3,16 +3,9 @@
 
 DEFINE_CLASS(Zenjeqt::TestBehaviour);
 
-void Zenjeqt::TestBehaviour::Awake() {
-    LOG_DEBUG("MainMenuViewController at %lp", _MainMenuViewController);
-}
-void Zenjeqt::TestBehaviour::OnEnable() {
-    LOG_DEBUG("MainMenuViewController at %lp", _MainMenuViewController);
-}
 void Zenjeqt::TestBehaviour::Start() {
-    LOG_DEBUG("MainMenuViewController at %lp", _MainMenuViewController);
+    LOG_DEBUG("Field-injected MainMenuViewController at %lp", _MainMenuViewController);
 }
-
-// void Zenjeqt::TestBehaviour::InjectMe(GlobalNamespace::MainMenuViewController* MainMenuViewController) {
-//     LOG_DEBUG("MainMenuViewController at %lp", MainMenuViewController);
-// }
+void Zenjeqt::TestBehaviour::InjectMe(GlobalNamespace::MainFlowCoordinator* MainFlowCoordinator) {
+    LOG_DEBUG("Method-injected MainFlowCoordinator at %lp", MainFlowCoordinator);
+}

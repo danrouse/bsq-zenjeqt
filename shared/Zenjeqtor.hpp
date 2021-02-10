@@ -32,7 +32,18 @@ struct ZenjectInjectMembersHash {
         return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
     }
 };
-typedef std::unordered_map<std::pair<const Il2CppClass*, std::string>, System::Attribute*, ZenjectInjectMembersHash> ZenjectInjectMembers;
+struct ZenjectInjectAttributeMetadata {
+    bool optional;
+    std::string id;
+
+    Zenject::InjectAttribute* getAttribute() {
+        auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*>());
+        attribute->Optional = optional;
+        if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
+        return attribute;
+    }
+};
+typedef std::unordered_map<std::pair<const Il2CppClass*, std::string>, ZenjectInjectAttributeMetadata, ZenjectInjectMembersHash> ZenjectInjectMembers;
 
 namespace Zenjeqt {
     /**
@@ -48,10 +59,7 @@ namespace Zenjeqt {
         public:
         static ZenjectInjectMembers InjectMembers;
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional, std::string id) {
-            auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*>());
-            // attribute->Optional = optional;
-            // if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
-            InjectMembers[{klass, memberName}] = reinterpret_cast<System::Attribute*>(attribute);
+            InjectMembers[{klass, memberName}] = {optional, id};
         }
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional) {
             RegisterInject(klass, memberName, optional, "");
