@@ -32,18 +32,7 @@ struct ZenjectInjectMembersHash {
         return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
     }
 };
-struct ZenjectInjectAttributeMetadata {
-    bool optional;
-    std::string id;
-
-    Zenject::InjectAttribute* getAttribute() {
-        auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*>());
-        attribute->Optional = optional;
-        if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
-        return attribute;
-    }
-};
-typedef std::unordered_map<std::pair<const Il2CppClass*, std::string>, ZenjectInjectAttributeMetadata, ZenjectInjectMembersHash> ZenjectInjectMembers;
+typedef std::unordered_map<std::pair<const Il2CppClass*, std::string>, Zenject::InjectAttribute*, ZenjectInjectMembersHash> ZenjectInjectMembers;
 
 namespace Zenjeqt {
     /**
@@ -59,7 +48,12 @@ namespace Zenjeqt {
         public:
         static ZenjectInjectMembers InjectMembers;
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional, std::string id) {
-            InjectMembers[{klass, memberName}] = {optional, id};
+            static auto InjectAttributeClass = il2cpp_utils::GetClassFromName("Zenject", "InjectAttribute");
+            if (!InjectAttributeClass->initialized) il2cpp_functions::Class_Init(InjectAttributeClass);
+            auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*, il2cpp_utils::CreationType::Manual>());
+            attribute->Optional = optional;
+            if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
+            InjectMembers[{klass, memberName}] = attribute;
         }
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional) {
             RegisterInject(klass, memberName, optional, "");
@@ -82,7 +76,7 @@ namespace Zenjeqt {
 
 
         // The remainder of this class is largely a direct port of SiraUtil's Zenjector class
-        static std::vector<Zenjeqtor*> allZenjectors;
+        static std::vector<Zenjeqtor*> AllZenjeqtors;
         static std::string LastTransitionSetupName;
         static std::string LastGamemodeSetupName;
         static std::string LastMidSceneName;
@@ -92,7 +86,7 @@ namespace Zenjeqt {
         std::vector<InstallBuilder*> Builders;
 
         Zenjeqtor() {
-            allZenjectors.push_back(this);
+            AllZenjeqtors.push_back(this);
         }
 
         template <typename T, ::std::enable_if_t<!::std::is_base_of_v<Zenject::IInstaller*, T>, int> = 0>

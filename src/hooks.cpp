@@ -20,7 +20,7 @@ MAKE_HOOK_OFFSETLESS(Attribute_GetCustomAttributes_Member, ::Array<System::Attri
     auto declaringClass = il2cpp_functions::class_from_system_type(reinterpret_cast<Il2CppReflectionType*>(declaringType));
     auto memberName = to_utf8(csstrtostr(CRASH_UNLESS(il2cpp_utils::RunMethod<Il2CppString*>(element, "get_Name"))));
     if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
-        baseValue = InsertCustomAttribute(baseValue, Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}].getAttribute());
+        baseValue = InsertCustomAttribute(baseValue, Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}]);
     }
     return baseValue;
 }
@@ -54,7 +54,7 @@ MAKE_HOOK_OFFSETLESS(MonoMethod_GetCustomAttributes, ::Array<::Il2CppObject*>*, 
     auto memberName = to_utf8(csstrtostr(self->get_Name()));
     if (Zenjeqt::Zenjeqtor::InjectMembers.contains({declaringClass, memberName})) {
         baseValue = reinterpret_cast<::Array<Il2CppObject*>*>(
-            InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}].getAttribute())
+            InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), Zenjeqt::Zenjeqtor::InjectMembers[{declaringClass, memberName}])
         );
     }
     return baseValue;
@@ -120,7 +120,7 @@ MAKE_HOOK_OFFSETLESS(Zenject_InstallInstallers, void, Zenject::Context* self,
 
     // Imagine having LINQ...
     std::vector<Zenjeqt::InstallBuilder*> builders;
-    for (auto zenjector : Zenjeqt::Zenjeqtor::allZenjectors) {
+    for (auto zenjector : Zenjeqt::Zenjeqtor::AllZenjeqtors) {
         if (!zenjector->Enabled) continue;
         for (auto builder : zenjector->Builders) {
             bool isAllOnFuncsInvoked = true;

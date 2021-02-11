@@ -11,7 +11,7 @@
   "platform": "Quest",
   "components": [
     {
-      "type": "HookMod",
+      "type": "HookModLibrary",
       "installAction": {
         "installLibraryFile": "libzenjeqt.so"
       },
