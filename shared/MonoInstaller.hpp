@@ -8,7 +8,7 @@
 DECLARE_CLASS_CODEGEN(Zenjeqt, MonoInstaller, Zenject::MonoInstaller,
     DECLARE_OVERRIDE_METHOD(void, InstallBindings, il2cpp_utils::FindMethodUnsafe("Zenject", "IInstaller", "InstallBindings", 0));
 
-    REGISTER_FUNCTION(TestMonoInstaller,
+    REGISTER_FUNCTION(MonoInstaller,
         REGISTER_METHOD(InstallBindings);
     )
 )

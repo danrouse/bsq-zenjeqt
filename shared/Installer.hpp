@@ -10,7 +10,7 @@ DECLARE_CLASS_CODEGEN(Zenjeqt, Installer, Zenject::Installer,
     DECLARE_OVERRIDE_METHOD(void, __Unused_InstallBindings, il2cpp_utils::FindMethodUnsafe("Zenject", "IInstaller", "InstallBindings", 0));
     DECLARE_OVERRIDE_METHOD(void, InstallBindings, il2cpp_utils::FindMethodUnsafe("Zenject", "InstallerBase", "InstallBindings", 0));
 
-    REGISTER_FUNCTION(TestInstaller,
+    REGISTER_FUNCTION(Installer,
         REGISTER_METHOD(ctor);
         REGISTER_METHOD(__Unused_InstallBindings);
         REGISTER_METHOD(InstallBindings);

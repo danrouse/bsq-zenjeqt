@@ -25,14 +25,7 @@
     REGISTER_METHOD(name); \
     Zenjeqt::Zenjeqtor::RegisterInject(klass, #name, true, ##__VA_ARGS__);
 
-// Generic hashing function to allow keying by {Il2CppClass*, std::string}
-struct ZenjectInjectMembersHash {
-    template <class T1, class T2>
-    std::size_t operator() (const std::pair<T1, T2>& pair) const {
-        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-    }
-};
-typedef std::unordered_map<std::pair<const Il2CppClass*, std::string>, Zenject::InjectAttribute*, ZenjectInjectMembersHash> ZenjectInjectMembers;
+typedef std::unordered_map<const Il2CppClass*, std::unordered_map<std::string, Zenject::InjectAttribute*>> ZenjectInjectMembers;
 
 namespace Zenjeqt {
     /**
@@ -53,7 +46,8 @@ namespace Zenjeqt {
             auto attribute = CRASH_UNLESS(il2cpp_utils::New<Zenject::InjectAttribute*, il2cpp_utils::CreationType::Manual>());
             attribute->Optional = optional;
             if (id.length() > 0) attribute->Id = il2cpp_utils::createcsstr(id);
-            InjectMembers[{klass, memberName}] = attribute;
+            if (!InjectMembers.contains(klass)) InjectMembers[klass] = {};
+            InjectMembers[klass][memberName] = attribute;
         }
         static void RegisterInject(const Il2CppClass* klass, std::string memberName, bool optional) {
             RegisterInject(klass, memberName, optional, "");
