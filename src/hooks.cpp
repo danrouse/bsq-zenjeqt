@@ -173,20 +173,26 @@ MAKE_HOOK_OFFSETLESS(Context_InstallInstallers, void, Zenject::Context* self,
         }
         if (builder->Contextless) builder->Contextless->Invoke(self->get_Container());
         if (builder->SceneContextless) builder->SceneContextless->Invoke(self, self->get_Container());
-        // TODO: Mutators NYI
-        // for (auto mutator : builder->Mutators) {
-        //     if (!allInjectables.Any(x => x.GetType() == mutator.Item1))
-        //     {
-        //         Assert.CreateException($"Could not find an object to mutate in a decorator context. {Utilities.ASSERTHIT}", mutator.Item1);
-        //     }
-        //     var behaviour = allInjectables.FirstOrDefault(x => x.GetType() == mutator.Item1);
-        //     if (behaviour != null)
-        //     {
-        //         var activeDecorator = decoratorContexts.FirstOrDefault(x => Accessors.Injectables(ref x).Contains(behaviour));
-        //         mutator.Item2.actionObj.Invoke(new MutationContext(e.Container, activeDecorator, allInjectables), behaviour);
-        //     }
-        // }
-        for (auto exposable : builder->Exposers) {
+        for (auto& mutator : builder->Mutators) {
+            UnityEngine::MonoBehaviour* behaviour;
+            for (auto& injectable : allInjectables) {
+                if (injectable->GetType() == mutator.first) {
+                    behaviour = injectable;
+                    break;
+                }
+            }
+            if (!behaviour) continue;
+            Zenject::SceneDecoratorContext* activeDecorator;
+            for (auto& decorator : decoratorContexts) {
+                if (decorator->injectableMonoBehaviours->Contains(behaviour)) {
+                    activeDecorator = decorator;
+                    break;
+                }
+            }
+            if (!activeDecorator) continue;
+            mutator.second(self->get_Container(), activeDecorator, allInjectables, behaviour);
+        }
+        for (auto& exposable : builder->Exposers) {
             UnityEngine::MonoBehaviour* behaviour;
             for (auto& injectable : allInjectables) {
                 if (injectable->GetType() == exposable) {
@@ -210,8 +216,8 @@ MAKE_HOOK_OFFSETLESS(Context_InstallInstallers, void, Zenject::Context* self,
             sceneContext->add_PostResolve(delegate);
         }
         if (!builder->Type) continue;
-        // TODO: Parameter binding NYI
-        // if (builder->Parameters != NULL) {
+        // TODO: WithParameters NYI. Hard to do with static typing...
+        // if (builder->Parameters) {
         //     auto bases = self->get_NormalInstallers();
         //     // Configurable Mono Installers requires the Unity Inspector
         //     // Assert.That(!builder.Type.DerivesFrom<MonoInstallerBase>(), $"MonoInstallers cannot have parameters due to Zenject limitations. {Utilities.ASSERTHIT}");

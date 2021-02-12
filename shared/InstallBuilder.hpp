@@ -18,6 +18,8 @@
 #include "GlobalNamespace/MissionLevelScenesTransitionSetupDataSO.hpp"
 #include "GlobalNamespace/MultiplayerLevelScenesTransitionSetupDataSO.hpp"
 
+typedef std::function<void(Zenject::DiContainer*, Zenject::SceneDecoratorContext*, std::vector<UnityEngine::MonoBehaviour*>, UnityEngine::MonoBehaviour*)> ZenjeqtMutator;
+
 namespace Zenjeqt {
     /**
      * @brief Direct port of SiraUtil's InstallBuilder.
@@ -34,7 +36,7 @@ namespace Zenjeqt {
         std::unordered_set<System::Type*> Exposers = {};
         System::Action_2<Zenject::SceneContext*, Zenject::DiContainer*>* Resolved = nullptr;
         System::Action_2<Zenject::Context*, Zenject::DiContainer*>* SceneContextless = nullptr;
-        // std::unordered_set<std::pair<System::Type*, DelegateWrapper>> Mutators = {};
+        std::vector<std::pair<System::Type*, ZenjeqtMutator>> Mutators = {};
         std::unordered_set<System::Func_4<UnityEngine::SceneManagement::Scene, Zenject::Context*, Zenject::DiContainer*, bool>*> OnFuncs = {};
         // HashSet<Tuple<Type, Action<Context, DiContainer>>> Headers
 
@@ -126,17 +128,10 @@ namespace Zenjeqt {
             Exposers.insert(csTypeOf(T));
         }
 
-        // template <typename T,
-        //     ::std::enable_if_t<!::std::is_base_of_v<UnityEngine::MonoBehaviour*, T>, int> = 0>
-        // InstallBuilder* Mutate<T>(Action<MutationContext, MonoBehaviour> action) { // where T : MonoBehaviour
-        //     Mutators.insert(new Tuple<Type, DelegateWrapper>(typeof(T), new DelegateWrapper().Wrap(action)));
-        // }
-
-        // template <typename T,
-        //     ::std::enable_if_t<!::std::is_base_of_v<UnityEngine::MonoBehaviour*, T>, int> = 0>
-        // InstallBuilder* Mutate<T>(Action<MutationContext, T> action) { // where T : MonoBehaviour
-        //     Mutators.insert(new Tuple<Type, DelegateWrapper>(typeof(T), new DelegateWrapper().Wrap(action)));
-        // }
+        template <typename T, ::std::enable_if_t<!::std::is_base_of_v<UnityEngine::MonoBehaviour*, T>, int> = 0>
+        InstallBuilder* Mutate(ZenjeqtMutator mutator) {
+            Mutators.emplace_back({csTypeOf(T), mutator});
+        }
 
         InstallBuilder* Pseudo(System::Action_1<Zenject::DiContainer*>* action) {
             Contextless = action;
