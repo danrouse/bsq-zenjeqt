@@ -12,7 +12,9 @@ _(TODO: expand on this bit with specifics, once the API is more hardened)_
 3. In `InstallBindings`, call Zenject's binding methods like normal,
 4. Register the `Installer` with using Zenjeqtor's `OnX` methods, such as `OnApp`, `OnMenu`, or `OnGame`.
 
-For basic examples, see the implementations in [this repo's test/ directory](test/).
+For basic examples, see the implementations in [this repo's `test` directory](test/).
+
+For more detailed information on Zenject itself, check out [the SiraUtil README](https://github.com/Auros/SiraUtil/blob/master/README.md#zenject).
 
 ## Credits
 
