@@ -38,9 +38,10 @@ std::optional<System::Attribute*> GetInjectAttribute(System::Reflection::MemberI
 MAKE_HOOK_OFFSETLESS(MonoField_GetCustomAttributes, ::Array<::Il2CppObject*>*, System::Reflection::MonoField* self, System::Type* attributeType, bool inherit) {
     auto baseValue = MonoField_GetCustomAttributes(self, attributeType, inherit);
     if (!DerivesFromInjectAttributeBase(attributeType)) return baseValue;
-    auto attribute = RET_UNLESS(baseValue, getLogger(), GetInjectAttribute(self));
+    auto attribute = GetInjectAttribute(self);
+    if (!attribute.has_value()) return baseValue;
     return reinterpret_cast<::Array<Il2CppObject*>*>(
-        InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), attribute)
+        InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), attribute.value())
     );
 }
 
@@ -51,9 +52,10 @@ MAKE_HOOK_OFFSETLESS(MonoField_GetCustomAttributes, ::Array<::Il2CppObject*>*, S
 MAKE_HOOK_OFFSETLESS(MonoMethod_GetCustomAttributes, ::Array<::Il2CppObject*>*, System::Reflection::MonoMethod* self, System::Type* attributeType, bool inherit) {
     auto baseValue = MonoMethod_GetCustomAttributes(self, attributeType, inherit);
     if (!DerivesFromInjectAttributeBase(attributeType)) return baseValue;
-    auto attribute = RET_UNLESS(baseValue, getLogger(), GetInjectAttribute(self));
+    auto attribute = GetInjectAttribute(self);
+    if (!attribute.has_value()) return baseValue;
     return reinterpret_cast<::Array<Il2CppObject*>*>(
-        InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), attribute)
+        InsertCustomAttribute(reinterpret_cast<::Array<System::Attribute*>*>(baseValue), attribute.value())
     );
 }
 
