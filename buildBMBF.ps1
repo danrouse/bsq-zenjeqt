@@ -2,5 +2,5 @@
 & $PSScriptRoot/build.ps1
 
 if ($?) {
-    Compress-Archive -Path "./libs/arm64-v8a/libzenjeqt.so", "./libs/arm64-v8a/libbeatsaber-hook_1_0_12.so", "./bmbfmod.json" -DestinationPath "./zenjeqt_v0.1.1.zip" -Update
+    Compress-Archive -Path "./libs/arm64-v8a/libzenjeqt.so", "./libs/arm64-v8a/libbeatsaber-hook_1_0_12.so", "./bmbfmod.json" -DestinationPath "./zenjeqt_v0.1.2.zip" -Update
 }
