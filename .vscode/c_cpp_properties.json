@@ -3,7 +3,7 @@
     {
       "defines": [
         "ID=\"zenjeqt\"",
-        "VERSION=\"0.1.0\"",
+        "VERSION=\"0.1.1\"",
         "ZENJEQT_DEBUG=1",
         "__GNUC__",
         "__aarch64__"

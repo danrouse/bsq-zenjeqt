@@ -4,11 +4,11 @@
   "info": {
     "name": "Zenjeqt",
     "id": "zenjeqt",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "url": "https://github.com/danrouse/bsq-zenjeqt",
     "additionalData": {
-      "soLink": "https://github.com/danrouse/bsq-zenjeqt/releases/download/0.1.0/libzenjeqt.so",
-      "debugSoLink": "https://github.com/danrouse/bsq-zenjeqt/releases/download/0.1.0/libzenjeqt_debug.so"
+      "soLink": "https://github.com/danrouse/bsq-zenjeqt/releases/download/0.1.1/libzenjeqt.so",
+      "debugSoLink": "https://github.com/danrouse/bsq-zenjeqt/releases/download/0.1.1/libzenjeqt_debug.so"
     }
   },
   "dependencies": [
