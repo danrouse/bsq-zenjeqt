@@ -1,6 +1,5 @@
 #pragma once
 
-#include "logger.hpp"
 #include "InstallBuilder.hpp"
 #include "Zenject/IInstaller.hpp"
 #include "Zenject/InjectAttribute.hpp"

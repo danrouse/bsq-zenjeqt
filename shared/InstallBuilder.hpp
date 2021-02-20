@@ -1,6 +1,5 @@
 #pragma once
 
-#include "logger.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "System/Type.hpp"
 #include "System/Func_1.hpp"
@@ -59,7 +58,6 @@ namespace Zenjeqt {
         }
 
         InstallBuilder* On(std::string destination) {
-            LOG_DEBUG(destination);
             Destination = destination;
             return this;
         }
