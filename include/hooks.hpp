@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include "Zenjeqtor.hpp"
 #include "Zenject/Context.hpp"
 #include "Zenject/GameObjectContext.hpp"
