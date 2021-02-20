@@ -1,10 +1,12 @@
 #pragma once
 
+#include "shared/Zenjeqtor.hpp"
+#include "custom-types/shared/register.hpp"
+
 #include "TestInstaller.hpp"
 #include "TestMonoInstaller.hpp"
 #include "TestBehaviour.hpp"
 #include "TestClass.hpp"
-#include "custom-types/shared/register.hpp"
 
 #include "System/Reflection/BindingFlags.hpp"
 

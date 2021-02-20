@@ -1,7 +1,7 @@
 #pragma once
 
 #include "custom-types/shared/macros.hpp"
-#include "Installer.hpp"
+#include "shared/Installer.hpp"
 
 DECLARE_CLASS_CODEGEN(Zenjeqt, TestInstaller, Zenjeqt::Installer,
     DECLARE_CTOR(ctor);
